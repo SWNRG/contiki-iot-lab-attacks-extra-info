@@ -88,14 +88,13 @@ tcpip_handler(void) /* CLIENTS' SIDE TRIGGERED */
     printf("%d",UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
     printf("\n");
 #endif 
-
-    	 child_node = &UIP_IP_BUF->srcipaddr;
-		 /* Need to convert again the sourceIP from global to local
-		 * i.e., from fd00 --. fe80. We dont want to play 
-		 * with the protocol, hence, return a local variable.
-		 */ 				
-		 child_node->u8[0] = (uint8_t *)254;
-		 child_node->u8[1] = (uint8_t *)128;
+    child_node = &UIP_IP_BUF->srcipaddr;
+    /* Need to convert again the sourceIP from global to local
+     * i.e., from fd00 --. fe80. We dont want to play 
+     * with the protocol, hence, return a local variable.
+     */ 				
+    child_node->u8[0] = (uint8_t *)254;
+     child_node->u8[1] = (uint8_t *)128;
 
 /* This is not really needed. Just print all incoming messages */
     if( (appdata[0] == 'N' && appdata[1] == 'P') || /* node is sending a New Parent */
@@ -239,14 +238,12 @@ serial_input_byte(unsigned char c)
 	PRINTF("DATA in from UART\n"); /* java crashes if too fast */
 				
 	if(c != '\n' && uart_buffer_index < UART_BUFFER_SIZE){
-	  uart_buffer[uart_buffer_index++] = c;
+	  	uart_buffer[uart_buffer_index++] = c;
 	}
 	else{
-      uart_buffer[uart_buffer_index] = '\0';
-      uart_buffer_index = 0;
-
-      printf("Controller message: %s\n",uart_buffer); 
-
+      		uart_buffer[uart_buffer_index] = '\0';
+      		uart_buffer_index = 0;
+      		printf("Controller message: %s\n",uart_buffer); 
 		in_comm[0] = uart_buffer[0];
 		in_comm[1] = uart_buffer[1]; // e.g. "SP"
 		in_comm[2] ='\0';
@@ -277,26 +274,25 @@ serial_input_byte(unsigned char c)
 #if PRINT_DET
 		printf("SENT %s to node ",in_comm);
 		printShortAddr(&uip_node_ip);
-		printf("\n");
-	
+		printf("\n");	
 		//printLongAddr(&uip_node_ip);
 		//printf(", in_comm msg: %s\n", in_comm);
 #endif	
 		 //}else{
-#define print_output 0
-#if print_output
-			 printf("Failed incoming IPv6: ");
-			 int g;
-			 for (g = 0; g<sizeof(node_ip)+1; g++){
-				 printf("%c",&node_ip[g]);
-			 }
-			 printf("\n");
-			 printf("Output: ");
-			 printLongAddr(&uip_node_ip);
-			 printf("\n");
+#define PRINT_OUTPUT 0
+#if PRINT_OUTPUT
+		printf("Failed incoming IPv6: ");
+		int g;
+		for (g = 0; g<sizeof(node_ip)+1; g++){
+			 printf("%c",&node_ip[g]);
+		}
+		printf("\n");
+		printf("Output: ");
+		printLongAddr(&uip_node_ip);
+		printf("\n");
 #endif
-			// printf("FAILED SENDING MESSAGE!\n\n");
-		   //}
+		// printf("FAILED SENDING MESSAGE!\n\n");
+	//}
    }
 }
 /*---------------------------------------------------------------------------*/
@@ -308,8 +304,7 @@ ping_only(void){ /* periodically ping the controller */
 }
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(udp_server_process, ev, data)
-{
-  
+{  
   uip_ipaddr_t ipaddr;
   struct uip_ds6_addr *root_if;
 
@@ -366,22 +361,11 @@ PROCESS_THREAD(udp_server_process, ev, data)
   }
   udp_bind(client_conn, UIP_HTONS(UDP_CLIENT_PORT)); 
 
-
-
-
-
 /* IS THIS USED ANYWHERE ????????????????? */
-
-
 	/* separate threat is not needed??? */
 	/* if mote==Z1, uart0_set_input, if mote==sky, uart1_set_input */
 	//uart0_init(BAUD2UBR(115200));
 	//uart0_set_input(serial_input_byte);
-
-
-
-
-
 
   static struct etimer periodic;
   static struct ctimer backoff_timer;
@@ -421,7 +405,6 @@ PROCESS_THREAD(udp_server_process, ev, data)
 		printf("R:%d, Total incoming UDP:%d\n",counter, udp_total_counter);
 #endif
 
-
 #define ANY_MODE 1
 // print if needed stats per turn NOT TOTALS
 #if ANY_MODE 
@@ -436,13 +419,11 @@ PROCESS_THREAD(udp_server_process, ev, data)
 		
 		//TODO: check if this is ok???
 		printf("R:%d, CURRENT_in_UDP:%d\n",counter, udp_total_counter);	
-		
-		
+				
 		printf("R:%d, Current_in_UDP_from previous:%d\n",counter, udp_previous);
 		udp_previous = udp_total_counter;
 		udp_total_counter =0; // TODO: is this ok? restart the packer counter?	
-#endif
-		      
+#endif		      
     }
   }
   PROCESS_END();
