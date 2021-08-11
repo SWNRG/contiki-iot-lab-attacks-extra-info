@@ -213,7 +213,6 @@ print_local_addresses(void)
       /* will keep the last one fe80 */
       ServerIpAddress = uip_ds6_if.addr_list[i].ipaddr;
       
-
       /* hack to make address "final" */
       if (state == ADDR_TENTATIVE) {
 			uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
@@ -341,7 +340,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
   }
 #endif /* UIP_CONF_ROUTER */
   
-  print_local_addresses();
+ //print_local_addresses(); /* printing the address AFTER the counter has started */
 
   /* The data sink runs with a 100% duty cycle in order to ensure high 
      packet reception rates. */
@@ -381,6 +380,10 @@ PROCESS_THREAD(udp_server_process, ev, data)
       etimer_reset(&periodic);
       //ctimer_set(&backoff_timer, SEND_TIME, ping_only, NULL);
       
+      if(counter==1){/* print node's OWN IP after the counter */				
+	  print_local_addresses():
+      }
+	    
       counter++;
       
       // TODO: send this to the controller. 
@@ -400,29 +403,29 @@ PROCESS_THREAD(udp_server_process, ev, data)
 
 #define OVERHEAD_STATS 0
 #if OVERHEAD_STATS
-		printf("R:%d, icmp_send:%d\n",counter, uip_stat.icmp.sent);
-		printf("R:%d, icmp_recv:%d\n",counter, uip_stat.icmp.recv);
-		printf("R:%d, Total incoming UDP:%d\n",counter, udp_total_counter);
+	printf("R:%d, icmp_send:%d\n",counter, uip_stat.icmp.sent);
+	printf("R:%d, icmp_recv:%d\n",counter, uip_stat.icmp.recv);
+	printf("R:%d, Total incoming UDP:%d\n",counter, udp_total_counter);
 #endif
 
 #define ANY_MODE 1
 // print if needed stats per turn NOT TOTALS
 #if ANY_MODE 
-		ICMPSent = uip_stat.icmp.sent - prevICMPSent;
-		prevICMPSent = uip_stat.icmp.sent;
-		ICMPRecv = uip_stat.icmp.recv - prevICMRecv;
-		prevICMRecv = uip_stat.icmp.recv;
-				
-		printf("R:%d, CURRENT_icmp_sent:%d\n",counter,ICMPSent);
-		printf("R:%d, CURRENT_icmp_recv:%d\n",counter,ICMPRecv);
-		udp_previous = udp_total_counter - udp_previous;	
-		
-		//TODO: check if this is ok???
-		printf("R:%d, CURRENT_in_UDP:%d\n",counter, udp_total_counter);	
-				
-		printf("R:%d, Current_in_UDP_from previous:%d\n",counter, udp_previous);
-		udp_previous = udp_total_counter;
-		udp_total_counter =0; // TODO: is this ok? restart the packer counter?	
+	ICMPSent = uip_stat.icmp.sent - prevICMPSent;
+	prevICMPSent = uip_stat.icmp.sent;
+	ICMPRecv = uip_stat.icmp.recv - prevICMRecv;
+	prevICMRecv = uip_stat.icmp.recv;
+
+	printf("R:%d, CURRENT_icmp_sent:%d\n",counter,ICMPSent);
+	printf("R:%d, CURRENT_icmp_recv:%d\n",counter,ICMPRecv);
+	udp_previous = udp_total_counter - udp_previous;	
+
+	//TODO: check if this is ok???
+	printf("R:%d, CURRENT_in_UDP:%d\n",counter, udp_total_counter);	
+
+	printf("R:%d, Current_in_UDP_from previous:%d\n",counter, udp_previous);
+	udp_previous = udp_total_counter;
+	udp_total_counter =0; // TODO: is this ok? restart the packer counter?	
 #endif		      
     }
   }
