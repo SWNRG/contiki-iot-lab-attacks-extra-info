@@ -232,7 +232,7 @@ print_local_addresses(void)
     state = uip_ds6_if.addr_list[i].state;
     if(uip_ds6_if.addr_list[i].isused &&
        (state == ADDR_TENTATIVE || state == ADDR_PREFERRED)) {
-      printLocalAddr(&uip_ds6_if.addr_list[i].ipaddr);
+      printLongAddr(&uip_ds6_if.addr_list[i].ipaddr);
       printf("\n");
       /* hack to make address "final" */
       if (state == ADDR_TENTATIVE) {
