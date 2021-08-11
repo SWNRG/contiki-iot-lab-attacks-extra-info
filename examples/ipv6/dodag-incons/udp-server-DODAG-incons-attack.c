@@ -195,7 +195,6 @@ print_local_addresses(void)
       /* will keep the last one fe80 */
       ServerIpAddress = uip_ds6_if.addr_list[i].ipaddr;
       
-
       /* hack to make address "final" */
       if (state == ADDR_TENTATIVE) {
 			uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
@@ -327,7 +326,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
   }
 #endif /* UIP_CONF_ROUTER */
   
-  print_local_addresses();
+ //print_local_addresses(); /* printing the address AFTER the counter has started */
 
   /* The data sink runs with a 100% duty cycle in order to ensure high 
      packet reception rates. */
@@ -363,13 +362,16 @@ PROCESS_THREAD(udp_server_process, ev, data)
     if(ev == tcpip_event) {
       tcpip_handler();
     } 
-    
+	
+    if(counter==1){/* print node's OWN IP after the counter */				
+    	print_local_addresses():
+    }
+	  
     if(etimer_expired(&periodic)) {
       etimer_reset(&periodic);
       //ctimer_set(&backoff_timer, SEND_TIME, ping_only, NULL);
       
       counter++;
-      
       
 #ifndef DODAG_ATTACK_STATS
 #define DODAG_ATTACK_STATS 1
