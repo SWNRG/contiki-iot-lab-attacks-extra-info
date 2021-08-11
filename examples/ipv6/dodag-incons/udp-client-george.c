@@ -227,13 +227,13 @@ print_local_addresses(void)
   int i;
   uint8_t state;
 
-  PRINTF("Client IPv6 addresses: ");
+  printf("Client IPv6 addresses: ");
   for(i = 0; i < UIP_DS6_ADDR_NB; i++) {
     state = uip_ds6_if.addr_list[i].state;
     if(uip_ds6_if.addr_list[i].isused &&
        (state == ADDR_TENTATIVE || state == ADDR_PREFERRED)) {
-      PRINT6ADDR(&uip_ds6_if.addr_list[i].ipaddr);
-      PRINTF("\n");
+      printLocalAddr(&uip_ds6_if.addr_list[i].ipaddr);
+      printf("\n");
       /* hack to make address "final" */
       if (state == ADDR_TENTATIVE) {
 			uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
@@ -393,7 +393,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
   PRINTF("UDP client process started nbr:%d routes:%d\n",
          NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);
 
-  print_local_addresses();
+  //print_local_addresses(); /* printing the address AFTER the counter has started */
 
   /* new connection with remote host */
   client_conn = udp_new(NULL, UIP_HTONS(UDP_SERVER_PORT), NULL); 
@@ -461,6 +461,9 @@ PROCESS_THREAD(udp_client_process, ev, data)
       		printf("\n");
       		printf("My parent last oct: %d\n",ipLast);
 #endif
+		if(counter==1){/* print node's OWN IP after the counter */				
+			print_local_addresses():
+		}
 		if (counter%10 == 0){ // Print the current parent every 10 rounds
 			printf("R %d, My parent: ",counter);
 			printLongAddr(my_cur_parent_ip);
