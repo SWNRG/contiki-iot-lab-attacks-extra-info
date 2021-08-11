@@ -220,13 +220,13 @@ print_local_addresses(void)
   int i;
   uint8_t state;
 
-  PRINTF("Client IPv6 addresses: ");
+  printf("Client IPv6 addresses: ");
   for(i = 0; i < UIP_DS6_ADDR_NB; i++) {
     state = uip_ds6_if.addr_list[i].state;
     if(uip_ds6_if.addr_list[i].isused &&
        (state == ADDR_TENTATIVE || state == ADDR_PREFERRED)) {
-      PRINT6ADDR(&uip_ds6_if.addr_list[i].ipaddr);
-      PRINTF("\n");
+      printLongAddr(&uip_ds6_if.addr_list[i].ipaddr);
+      printf("\n");
       /* hack to make address "final" */
       if (state == ADDR_TENTATIVE) {
 			uip_ds6_if.addr_list[i].state = ADDR_PREFERRED;
@@ -383,7 +383,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
 	PRINTF("UDP client process started nbr:%d routes:%d\n",
          NBR_TABLE_CONF_MAX_NEIGHBORS, UIP_CONF_MAX_ROUTES);
 
- 	print_local_addresses();
+ 	//print_local_addresses(); /* printing the address AFTER the counter has started */
 
 	/* new connection with remote host */
  	client_conn = udp_new(NULL, UIP_HTONS(UDP_SERVER_PORT), NULL); 
@@ -449,33 +449,36 @@ PROCESS_THREAD(udp_client_process, ev, data)
     	}
 
     	if(etimer_expired(&periodic)) {
-			etimer_reset(&periodic);
-			counter++;
+		etimer_reset(&periodic);
+		counter++;
 #ifndef PRINT_IP_ON
 #define PRINT_IP_ON 0
 #endif
 #if PRINT_IP_ON   
-       	uint8_t *ipLast = ((uint8_t *)my_cur_parent_ip)[15];   
-			printf("my_cur_parent_ip: "); 
-			printShortAddr(my_cur_parent_ip);
-			printf("\n");
-			printf("My parent last oct: %d\n",ipLast);
+       		uint8_t *ipLast = ((uint8_t *)my_cur_parent_ip)[15];   
+		printf("my_cur_parent_ip: "); 
+		printShortAddr(my_cur_parent_ip);
+		printf("\n");
+		printf("My parent last oct: %d\n",ipLast);
 #endif
-			if(counter%10==0){/* print own_ip & parent every 10 rounds */
-				printf("R%d, My parent: ", counter);				
-				printLongAddr(my_cur_parent_ip);
-				printf("\n");
-			}
-			/* sending periodic UDP data to sink (e.g. temperature measurements) */
-			ctimer_set(&backoff_timer, SEND_TIME, send_packet, NULL);   
-	
-			if (counter > 3){	/* Initial "grace" period */  
-				 printf("R: %d, trickle resets: %d\n",counter,rpl_stats.resets);
-				 printf("R: %d, global repairs: %d\n",counter,rpl_stats.global_repairs);
-				 printf("R: %d, local repairs: %d\n",counter,rpl_stats.local_repairs);
-				 //printf("R:%d, icmp_sent_TOTAL:%d\n",counter,uip_stat.icmp.sent);
-				 //printf("R:%d, icmp_recv_TOTAL:%d\n",counter,uip_stat.icmp.recv);
-			}
+		if(counter==1){/* print node's OWN IP after the counter */				
+			print_local_addresses():
+		}
+		if(counter%10==0){/* print own_ip & parent every 10 rounds */
+			printf("R%d, My parent: ", counter);				
+			printLongAddr(my_cur_parent_ip);
+			printf("\n");
+		}
+		/* sending periodic UDP data to sink (e.g. temperature measurements) */
+		ctimer_set(&backoff_timer, SEND_TIME, send_packet, NULL);   
+
+		if (counter > 3){	/* Initial "grace" period */  
+			 printf("R: %d, trickle resets: %d\n",counter,rpl_stats.resets);
+			 printf("R: %d, global repairs: %d\n",counter,rpl_stats.global_repairs);
+			 printf("R: %d, local repairs: %d\n",counter,rpl_stats.local_repairs);
+			 //printf("R:%d, icmp_sent_TOTAL:%d\n",counter,uip_stat.icmp.sent);
+			 //printf("R:%d, icmp_recv_TOTAL:%d\n",counter,uip_stat.icmp.recv);
+		}
 
 /***********************************************************************/
 /* Hybrid Security Mechanism: This is the node-part.
@@ -487,24 +490,24 @@ PROCESS_THREAD(udp_client_process, ev, data)
  * Either the node(s) are continiously running it, or the controller asks for
  * it by sending a message to turn it on.
  */	
-       ICMPSent = uip_stat.icmp.sent - prevICMPSent;
-       prevICMPSent = uip_stat.icmp.sent;
-       ICMPRecv = uip_stat.icmp.recv - prevICMRecv;
-       prevICMRecv = uip_stat.icmp.recv;
+	       ICMPSent = uip_stat.icmp.sent - prevICMPSent;
+	       prevICMPSent = uip_stat.icmp.sent;
+	       ICMPRecv = uip_stat.icmp.recv - prevICMRecv;
+	       prevICMRecv = uip_stat.icmp.recv;
 
-       printf("R:%d, icmp_sent:%d\n",counter,ICMPSent);
-       printf("R:%d, icmp_recv:%d\n",counter,ICMPRecv);
-						
-       //printf("R:%d, CURRENT_icmp_sent:%d\n",counter,ICMPSent);
-       //printf("R:%d, CURRENT_icmp_recv:%d\n",counter,ICMPRecv);
-		
-       /* Try these for total number of packets sent/received until now */		
-       //int dixonQAnswerSent = addDixonQOut(uip_stat.icmp.sent);
-       //int dixonQAnswerRecv = addDixonQIn(uip_stat.icmp.recv);
+	       printf("R:%d, icmp_sent:%d\n",counter,ICMPSent);
+	       printf("R:%d, icmp_recv:%d\n",counter,ICMPRecv);
+
+	       //printf("R:%d, CURRENT_icmp_sent:%d\n",counter,ICMPSent);
+	       //printf("R:%d, CURRENT_icmp_recv:%d\n",counter,ICMPRecv);
+
+	       /* Try these for total number of packets sent/received until now */		
+	       //int dixonQAnswerSent = addDixonQOut(uip_stat.icmp.sent);
+	       //int dixonQAnswerRecv = addDixonQIn(uip_stat.icmp.recv);
 
 #if ESSENTIAL_MODE
-       dixonQAnswerSent = addDixonQOut(ICMPSent);
-       dixonQAnswerRecv = addDixonQIn(ICMPRecv);
+	       dixonQAnswerSent = addDixonQOut(ICMPSent);
+	       dixonQAnswerRecv = addDixonQIn(ICMPRecv);
 						
 		/* Continiously monitoring fo abnormalities in icmp (Dixon q test outliers */
 		if (counter > dixon_n_vals + 3){ /* On bootstrap network is still forming */
