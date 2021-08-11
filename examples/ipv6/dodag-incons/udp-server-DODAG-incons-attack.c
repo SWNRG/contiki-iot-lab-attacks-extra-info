@@ -364,7 +364,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
     } 
 	
     if(counter==1){/* print node's OWN IP after the counter */				
-    	print_local_addresses():
+    	print_local_addresses();
     }
 	  
     if(etimer_expired(&periodic)) {
