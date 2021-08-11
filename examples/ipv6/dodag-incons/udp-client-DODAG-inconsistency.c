@@ -462,7 +462,7 @@ PROCESS_THREAD(udp_client_process, ev, data)
 		printf("My parent last oct: %d\n",ipLast);
 #endif
 		if(counter==1){/* print node's OWN IP after the counter */				
-			print_local_addresses():
+			print_local_addresses();
 		}
 		if(counter%10==0){/* print own_ip & parent every 10 rounds */
 			printf("R%d, My parent: ", counter);				
